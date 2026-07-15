@@ -1,0 +1,6 @@
+[build]
+  publish = "public"
+  command = "echo 'Static Site with Netlify Functions'"
+
+[functions]
+  directory = "netlify/functions"

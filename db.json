@@ -1,0 +1,26 @@
+{
+  "articles": [
+    {
+      "id": "1",
+      "title": "Le PSG remporte le choc de la journée en Ligue 1",
+      "content": "Dans un match très tendu, le Paris Saint-Germain a réussi à s'imposer 2-1 grâce à un but décisif à la 89ème minute. Les supporters ont exulté après une rencontre qui a tenu toutes ses promesses.",
+      "category": "Actualité",
+      "image": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&q=80&w=800",
+      "date": "2023-10-25T14:30:00.000Z"
+    },
+    {
+      "id": "2",
+      "title": "Grosse rumeur au Real Madrid pour cet hiver",
+      "content": "Un nouveau buteur star pourrait rejoindre le club espagnol cet hiver. Les négociations seraient en cours pour un montant record dépassant les 100 millions d'euros.",
+      "category": "Transfert",
+      "image": "https://images.unsplash.com/photo-1508344928928-7137b2938173?auto=format&fit=crop&q=80&w=800",
+      "date": "2023-10-24T09:15:00.000Z"
+    }
+  ],
+  "external_news": [],
+  "matches": [
+    { "id": "1", "home": "PSG", "away": "OM", "score": "2-0", "date": "2023-10-26" },
+    { "id": "2", "home": "Lyon", "away": "Monaco", "score": "1-1", "date": "2023-10-26" },
+    { "id": "3", "home": "Lille", "away": "Lens", "score": "3-2", "date": "2023-10-27" }
+  ]
+}

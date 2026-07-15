@@ -1,0 +1,6 @@
+{
+  "name": "Football Net Actu",
+  "description": "Un site complet d'actualités sur le football, prêt pour Netlify.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
