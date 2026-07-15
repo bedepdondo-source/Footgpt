@@ -28,6 +28,35 @@
 
     <div class="container-fluid px-4 my-4">
         <div class="row">
+            <div class="col-12 mb-4">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card bg-primary text-white border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="text-uppercase fw-bold mb-2 opacity-75" style="font-size: 0.75rem;">Total Articles</h6>
+                                <h2 class="display-6 fw-bold mb-0" id="stat-total-articles">-</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-success text-white border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="text-uppercase fw-bold mb-2 opacity-75" style="font-size: 0.75rem;">Articles (7 derniers jours)</h6>
+                                <h2 class="display-6 fw-bold mb-0" id="stat-recent-articles">-</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-info text-white border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="text-uppercase fw-bold mb-2 opacity-75" style="font-size: 0.75rem;">Top Catégorie</h6>
+                                <h2 class="h3 fw-bold mb-0 mt-2" id="stat-top-category">-</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Form Column -->
             <div class="col-xl-4 col-lg-5 mb-4">
                 <div class="card shadow-sm border-0 h-100">
@@ -46,6 +75,12 @@
                                 <select id="article-category" class="form-select" required>
                                     <option value="Actualité">Actualité</option>
                                     <option value="Transfert">Transfert</option>
+                                    <option value="Ligue 1">Ligue 1</option>
+                                    <option value="Premier League">Premier League</option>
+                                    <option value="Liga">Liga</option>
+                                    <option value="Serie A">Serie A</option>
+                                    <option value="Bundesliga">Bundesliga</option>
+                                    <option value="Champions League">Champions League</option>
                                 </select>
                             </div>
                             <div class="mb-3">
@@ -66,8 +101,22 @@
             <!-- List Column -->
             <div class="col-xl-8 col-lg-7">
                 <div class="card shadow-sm border-0 h-100">
-                    <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+                    <div class="card-header bg-dark text-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                         <h5 class="mb-0 fw-bold">Liste des Articles</h5>
+                        <div class="d-flex gap-2">
+                            <select id="admin-filter-category" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Toutes les catégories</option>
+                                <option value="Actualité">Actualité</option>
+                                <option value="Transfert">Transfert</option>
+                                <option value="Ligue 1">Ligue 1</option>
+                                <option value="Premier League">Premier League</option>
+                                <option value="Liga">Liga</option>
+                                <option value="Serie A">Serie A</option>
+                                <option value="Bundesliga">Bundesliga</option>
+                                <option value="Champions League">Champions League</option>
+                            </select>
+                            <input type="text" id="admin-search-articles" class="form-control form-control-sm" placeholder="Rechercher...">
+                        </div>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">

@@ -52,7 +52,48 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInputs.forEach(input => {
         input.addEventListener('input', handleGlobalSearch);
     });
+
+    const newsletterForm = document.getElementById('newsletter-form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('newsletter-email').value;
+            const msg = document.getElementById('newsletter-message');
+            const btn = newsletterForm.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = 'Patientez...';
+            try {
+                const res = await fetch('/.netlify/functions/newsletter', {
+                    method: 'POST',
+                    body: JSON.stringify({ email })
+                });
+                msg.classList.remove('d-none', 'text-danger');
+                msg.classList.add('text-success');
+                msg.textContent = 'Merci pour votre inscription !';
+                newsletterForm.reset();
+            } catch(err) {
+                msg.classList.remove('d-none', 'text-success');
+                msg.classList.add('text-danger');
+                msg.textContent = 'Une erreur est survenue.';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "S'inscrire";
+            }
+        });
+    }
 });
+
+window.shareSocial = function(network) {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent("Découvrez Football Net Actu !");
+    if (network === 'whatsapp') {
+        window.open(`https://api.whatsapp.com/send?text=${text} ${url}`, '_blank');
+    } else if (network === 'facebook') {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+    } else if (network === 'twitter') {
+        window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+    }
+};
 
 function handleGlobalSearch(e) {
     const term = e.target.value.trim().toLowerCase();
@@ -131,6 +172,22 @@ function renderHomeContent(articles, term) {
             </div>
         `).join('') || '<p class="text-muted small">Aucune rumeur trouvée.</p>';
     }
+
+    const popularContainer = document.getElementById('popular-articles');
+    if (popularContainer) {
+        const popular = term ? [] : articles.slice(1, 4);
+        popularContainer.innerHTML = popular.map(a => `
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+                    <img src="${a.image}" class="card-img-top" alt="${a.title}" style="height:150px;object-fit:cover;">
+                    <div class="card-body">
+                        <span class="badge bg-secondary mb-2">${a.category}</span>
+                        <h6 class="card-title fw-bold" style="font-size: 0.9rem;">${a.title}</h6>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
 }
 
 async function loadHomeData() {
@@ -139,6 +196,8 @@ async function loadHomeData() {
     globalArticles = articles;
     
     renderHomeContent(articles, '');
+
+    renderStandings();
 
     // RSS loading
     loadRSSNews();
@@ -259,6 +318,36 @@ function renderCategoryContent(filtered, term) {
 }
 
 
+function renderStandings() {
+    const l1 = [
+        { team: 'PSG', pts: 76, j: 34 },
+        { team: 'Monaco', pts: 67, j: 34 },
+        { team: 'Brest', pts: 61, j: 34 },
+        { team: 'Lille', pts: 59, j: 34 },
+        { team: 'Nice', pts: 55, j: 34 }
+    ];
+    const pl = [
+        { team: 'Man City', pts: 91, j: 38 },
+        { team: 'Arsenal', pts: 89, j: 38 },
+        { team: 'Liverpool', pts: 82, j: 38 },
+        { team: 'Aston Villa', pts: 68, j: 38 },
+        { team: 'Tottenham', pts: 66, j: 38 }
+    ];
+    
+    const l1Container = document.getElementById('standings-ligue1');
+    if (l1Container) {
+        l1Container.innerHTML = l1.map((t, i) => `
+            <tr><td class="ps-3 text-muted">${i+1}</td><td class="fw-bold">${t.team}</td><td>${t.pts}</td><td class="text-center pe-3">${t.j}</td></tr>
+        `).join('');
+    }
+    const plContainer = document.getElementById('standings-pl');
+    if (plContainer) {
+        plContainer.innerHTML = pl.map((t, i) => `
+            <tr><td class="ps-3 text-muted">${i+1}</td><td class="fw-bold">${t.team}</td><td>${t.pts}</td><td class="text-center pe-3">${t.j}</td></tr>
+        `).join('');
+    }
+}
+
 // ------------------------------------------------------------------
 // ADMIN LOGIC
 // ------------------------------------------------------------------
@@ -306,19 +395,45 @@ function logout() {
 
 let allArticles = [];
 
+function initAdminEvents() {
+    const search = document.getElementById('admin-search-articles');
+    const filter = document.getElementById('admin-filter-category');
+    if (search) search.addEventListener('input', renderAdminArticles);
+    if (filter) filter.addEventListener('change', renderAdminArticles);
+}
+
 async function loadAdminArticles() {
+    initAdminEvents();
     const list = document.getElementById('admin-articles-list');
     if (!list) return;
     
     const articles = await fetchArticles();
     allArticles = articles;
     
-    if (articles.length === 0) {
+    renderAdminArticles();
+}
+
+function renderAdminArticles() {
+    const list = document.getElementById('admin-articles-list');
+    if (!list) return;
+    
+    const term = document.getElementById('admin-search-articles')?.value.toLowerCase() || '';
+    const cat = document.getElementById('admin-filter-category')?.value || '';
+    
+    const filtered = allArticles.filter(a => {
+        const matchCat = cat ? a.category === cat : true;
+        const matchTerm = term ? (a.title.toLowerCase().includes(term) || a.content.toLowerCase().includes(term)) : true;
+        return matchCat && matchTerm;
+    });
+    
+    updateAdminStats(filtered);
+    
+    if (filtered.length === 0) {
         list.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Aucun article disponible</td></tr>';
         return;
     }
     
-    list.innerHTML = articles.map(a => `
+    list.innerHTML = filtered.map(a => `
         <tr>
             <td class="ps-4 text-muted small">${formatDate(a.date)}</td>
             <td class="fw-bold">${a.title}</td>
@@ -329,6 +444,30 @@ async function loadAdminArticles() {
             </td>
         </tr>
     `).join('');
+}
+
+function updateAdminStats(articles) {
+    const totalEl = document.getElementById('stat-total-articles');
+    const recentEl = document.getElementById('stat-recent-articles');
+    const topCatEl = document.getElementById('stat-top-category');
+    
+    if (totalEl) totalEl.textContent = articles.length;
+    
+    if (recentEl) {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const recent = articles.filter(a => new Date(a.date) > sevenDaysAgo).length;
+        recentEl.textContent = recent;
+    }
+    
+    if (topCatEl && articles.length > 0) {
+        const counts = {};
+        articles.forEach(a => counts[a.category] = (counts[a.category] || 0) + 1);
+        const topCat = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+        topCatEl.textContent = topCat;
+    } else if (topCatEl) {
+        topCatEl.textContent = "-";
+    }
 }
 
 async function handleArticleSubmit(e) {
