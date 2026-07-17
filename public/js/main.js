@@ -241,7 +241,59 @@ async function loadRSSNews() {
     `).join('');
 }
 
+async function fetchLiveScores() {
+    const container = document.getElementById('live-scores-container');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-success spinner-border-sm" role="status"></div><span class="ms-2 small">Chargement...</span></div>';
+    
+    try {
+        const res = await fetch('/.netlify/functions/live-scores');
+        if (!res.ok) throw new Error('API Error');
+        const data = await res.json();
+        
+        if (data.error) {
+            container.innerHTML = `<div class="alert alert-danger py-2 small">${data.error}</div>`;
+            return;
+        }
+        
+        const fixtures = data.response || [];
+        
+        if (fixtures.length === 0) {
+            container.innerHTML = '<div class="alert alert-info py-2 small mb-0">Aucun match en direct pour le moment.</div>';
+            return;
+        }
+        
+        container.innerHTML = fixtures.map(match => `
+            <div class="card shadow-sm border-0 mb-3 live-match-card" style="border-left: 3px solid #dc2626 !important;">
+                <div class="card-body p-2">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted" style="font-size: 0.7rem;">${match.league.name} - ${match.league.country}</small>
+                        <span class="badge bg-danger pulse-live">LIVE ${match.fixture.status.elapsed}'</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-center" style="width: 40%;">
+                            <img src="${match.teams.home.logo}" alt="${match.teams.home.name}" style="width: 25px; height: 25px; object-fit: contain;">
+                            <div class="mt-1 fw-bold" style="font-size: 0.75rem;">${match.teams.home.name}</div>
+                        </div>
+                        <div class="text-center fw-bold fs-5" style="width: 20%;">
+                            ${match.goals.home} - ${match.goals.away}
+                        </div>
+                        <div class="text-center" style="width: 40%;">
+                            <img src="${match.teams.away.logo}" alt="${match.teams.away.name}" style="width: 25px; height: 25px; object-fit: contain;">
+                            <div class="mt-1 fw-bold" style="font-size: 0.75rem;">${match.teams.away.name}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch(err) {
+        container.innerHTML = '<div class="alert alert-warning py-2 small mb-0">Impossible de charger les scores. Réessayez plus tard.</div>';
+    }
+}
+
 async function loadMatchesData(elementId, limit = null) {
+    fetchLiveScores();
     const matchesList = document.getElementById(elementId);
     if (!matchesList) return;
     
